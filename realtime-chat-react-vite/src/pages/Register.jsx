@@ -1,27 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import addImg from '../img/add-image.png';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth, storage, db } from '../firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { doc, setDoc } from 'firebase/firestore';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
-  const handleSubmit = (e) => {
+  const [err, SetErr] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
     const file = e.target[3].files[0];
+    try {
+      const res = await createUserWithEmailAndPassword(auth, email, password);
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
+      const storageRef = ref(storage, displayName);
+
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        (error) => {
+          console.log(error);
+          SetErr(true);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            await updateProfile(res.user, {
+              displayName,
+              photoURL: downloadURL,
+            });
+            await setDoc(doc(db, 'users', res.user.uid), {
+              uid: res.user.uid,
+              displayName,
+              email,
+              photoURL: downloadURL,
+            });
+            await setDoc(doc(db, 'userChats', res.user.uid), {});
+            navigate('/');
+          });
+        }
+      );
+    } catch (err) {
+      console.log(err);
+      SetErr(true);
+    }
   };
 
   return (
@@ -56,8 +83,12 @@ const Register = () => {
           <button className="bg-orange-400 py-2 rounded-sm text-white font-bold ">
             สมัคร
           </button>
+          {err && <span>ข้อมูลผิดพลาด</span>}
           <p className="text-orange-400">
-            มีบัญชีอยู่แล้ว? <span>เข้าสู่ระบบ</span>
+            มีบัญชีอยู่แล้ว?
+            <Link to="/login">
+              <span className="underline text-blue-500">เข้าสู่ระบบ</span>
+            </Link>
           </p>
         </form>
       </div>
