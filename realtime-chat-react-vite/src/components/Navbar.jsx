@@ -6,7 +6,6 @@ import { AuthContext } from '../context/AuthContext.jsx';
 
 const Navbar = () => {
   const { currentUser } = useContext(AuthContext);
-
   return (
     <div className="flex items-center bg-orange-500 h-20 p-4 justify-between text-white">
       <span className="font-bold">ZipZip Chat</span>
