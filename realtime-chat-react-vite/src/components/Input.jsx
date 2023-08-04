@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Img from '../img/send-image.png';
 import File from '../img/send-file2.png';
 import { AuthContext } from '../context/AuthContext';
@@ -17,9 +17,16 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 const Input = () => {
   const [text, setText] = useState('');
   const [img, setImg] = useState(null);
+  const [imageURL, setImageURL] = useState([]);
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
+
+  useEffect(() => {
+    if (img === null) return;
+    const newImageURL = URL.createObjectURL(img);
+    setImageURL(newImageURL);
+  }, [img]);
 
   const handleSend = async () => {
     if (img) {
@@ -76,6 +83,8 @@ const Input = () => {
     setImg(null);
   };
 
+  console.log('img');
+  console.log(img);
   return (
     <div className="input h-16 p-2 bg-white flex justify-between">
       <input
@@ -85,6 +94,8 @@ const Input = () => {
         onChange={(e) => setText(e.target.value)}
         value={text}
       />
+      <img src={imageURL} />
+
       <div className="send flex items-center gap-2">
         <img
           className="cursor-pointer"
