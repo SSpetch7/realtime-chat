@@ -72,7 +72,7 @@ const Search = () => {
   };
 
   return (
-    <div className="search border-b-2 border-b-indigo-600">
+    <div className="search border-b-2 border-b-white">
       <div className="searchForm pl-3 py-3">
         <input
           className="bg-transparent border-none outline-none border-white placeholder-gray-500"

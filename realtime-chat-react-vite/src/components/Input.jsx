@@ -81,10 +81,14 @@ const Input = () => {
     }
     setText('');
     setImg(null);
+    setImageURL([]);
   };
 
-  console.log('img');
-  console.log(img);
+  const clearFileInput = () => {
+    setImg(null);
+    setImageURL([]);
+  };
+
   return (
     <div className="input h-16 p-2 bg-white flex justify-between">
       <input
@@ -94,7 +98,11 @@ const Input = () => {
         onChange={(e) => setText(e.target.value)}
         value={text}
       />
-      <img src={imageURL} />
+      <img
+        src={imageURL}
+        onClick={clearFileInput}
+        className="hover:bg-sky-200 cursor-pointer"
+      />
 
       <div className="send flex items-center gap-2">
         <img
